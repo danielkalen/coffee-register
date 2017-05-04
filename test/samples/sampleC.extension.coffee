@@ -1,0 +1,1 @@
+module.exports = sampleC = do ()-> 'sampleC'

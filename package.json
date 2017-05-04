@@ -1,0 +1,42 @@
+{
+  "name": "coffee-register",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "mocha_opts": "-u tdd --slow 1000 --timeout 5000",
+  "scripts": {
+    "prepublish": "npm run test",
+    "build": "cat src/index.coffee | coffee -cbs --no-header > lib/index.js",
+    "build:test": "cat test/test.coffee | coffee -cbs --no-header > test/test.js",
+    "build:benchmarks": "cat benchmarks/runner.coffee | coffee -cbs --no-header > benchmarks/runner.js",
+    "coverage": "npm run coverage:run && npm run coverage:badge",
+    "coverage:run": "forCoverage=true istanbul cover --dir coverage node_modules/mocha/bin/_mocha -- $npm_package_mocha_opts",
+    "coverage:badge": "badge-gen -d ./.config/badges/coverage",
+    "benchmark": "npm run bench",
+    "bench": "npm run build:benchmarks && node benchmarks/runner.js",
+    "test": "npm run build:test && mocha $npm_package_mocha_opts"
+  },
+  "author": "danielkalen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielkalen/coffee-register"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "badge-gen": "^1.0.2",
+    "benchmark": "^2.1.4",
+    "bluebird": "^3.5.0",
+    "chai": "^3.5.0",
+    "chalk": "^1.1.3",
+    "extend": "^3.0.1",
+    "matcha": "^0.7.0",
+    "mocha": "^3.3.0",
+    "simplyimport": "^3.5.8",
+    "simplywatch": "^2.5.4"
+  },
+  "dependencies": {
+    "coffee-script": "^1.12.5",
+    "fs-jetpack": "^0.13.3",
+    "md5": "^2.2.1"
+  }
+}
