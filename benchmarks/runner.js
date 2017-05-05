@@ -1,4 +1,4 @@
-var Benchmark, CACHE_DIR, NATIVE_REGISTER, OUR_REGISTER, Promise, chalk, cleanDirCache, deRegister, exec, extend, fs, path, runClean, sample, suite, temp, theImporter,
+var Benchmark, CACHE_DIR, Promise, chalk, cleanDirCache, deRegister, exec, extend, fs, path, runClean, sample, suite, temp, theImporter,
   slice = [].slice;
 
 Promise = require('bluebird');
@@ -37,10 +37,6 @@ fs.dir(temp(), {
   empty: true
 });
 
-NATIVE_REGISTER = "require('coffee-script/register');";
-
-OUR_REGISTER = "require('../../');";
-
 theImporter = null;
 
 runClean = function(type) {
@@ -56,11 +52,12 @@ runClean = function(type) {
 };
 
 deRegister = function() {
-  var cached, cachedFile, i, j, len, len1, sampleFile, samples;
+  var cached, cachedFile, i, item, j, k, largeModules, len, len1, len2, sampleFile, samples;
   delete require.extensions['.coffee'];
   delete require.extensions['.litcoffee'];
   delete require.extensions['.coffee.md'];
   delete require.cache[require.resolve('coffee-script/register')];
+  delete require.cache[require.resolve('coffee-script/lib/coffee-script/register')];
   delete require.cache[require.resolve('../')];
   samples = fs.list(sample());
   for (i = 0, len = samples.length; i < len; i++) {
@@ -71,6 +68,13 @@ deRegister = function() {
   for (j = 0, len1 = cached.length; j < len1; j++) {
     cachedFile = cached[j];
     delete require.cache[temp('.cache', cachedFile)];
+  }
+  largeModules = Object.keys(require.cache).filter(function(path) {
+    return path.includes('simplyimport') || path.includes('simplywatch');
+  });
+  for (k = 0, len2 = largeModules.length; k < len2; k++) {
+    item = largeModules[k];
+    delete require.cache[item];
   }
 };
 
@@ -84,7 +88,7 @@ suite = function(name, options) {
   });
 };
 
-suite('3 small modules', {
+suite('2 large modules', {
   onComplete: function() {
     return fs.dir(temp(), {
       empty: true
@@ -92,12 +96,13 @@ suite('3 small modules', {
   },
   onStart: function() {
     return theImporter = function() {
-      require('./samples/small1');
-      require('./samples/small2');
-      require('./samples/small3');
+      require('simplyimport/lib/simplyimport');
+      return require('simplywatch/lib/simplywatch');
     };
   }
-}).add('ours (uncached)', function() {
+}).add('native', function() {
+  return runClean('native');
+}, cleanDirCache).add('ours (uncached)', function() {
   return runClean('ours');
 }, cleanDirCache).add('ours (cached)', function() {
   return runClean('ours');

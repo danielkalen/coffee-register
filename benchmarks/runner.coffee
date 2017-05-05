@@ -12,9 +12,6 @@ cleanDirCache = onCycle: ()-> fs.dir(CACHE_DIR, empty:true)
 
 fs.dir temp(),empty:true
 
-NATIVE_REGISTER = "require('coffee-script/register');"
-OUR_REGISTER = "require('../../');"
-
 
 theImporter = null
 runClean = (type)->
@@ -31,6 +28,7 @@ deRegister = ()->
 	delete require.extensions['.litcoffee']
 	delete require.extensions['.coffee.md']
 	delete require.cache[require.resolve('coffee-script/register')]
+	delete require.cache[require.resolve('coffee-script/lib/coffee-script/register')]
 	delete require.cache[require.resolve('../')]
 	samples = fs.list(sample())
 	for sampleFile in samples
@@ -40,6 +38,10 @@ deRegister = ()->
 	for cachedFile in cached
 		delete require.cache[temp('.cache',cachedFile)]
 
+	largeModules = Object.keys(require.cache).filter (path)-> path.includes('simplyimport') or path.includes('simplywatch')
+	for item in largeModules
+		delete require.cache[item]
+	
 	return
 
 
@@ -51,14 +53,92 @@ suite = (name, options)->
 
 
 
-suite('3 small modules', {
+# suite('3 small modules', {
+# 	onComplete: ()-> fs.dir temp(),empty:true
+# 	onStart: ()->
+# 		theImporter = ()->
+# 			require('./samples/small1')
+# 			require('./samples/small2')
+# 			require('./samples/small3')
+# 			return
+# })
+# 	.add('native', ()->
+# 		runClean('native')
+# 	, cleanDirCache)
+
+# 	.add('ours (uncached)', ()->
+# 		runClean('ours')
+# 	, cleanDirCache)
+
+# 	.add('ours (cached)', ()->
+# 		runClean('ours')
+# 	)
+
+# 	.run()
+
+
+
+# suite('6 small modules', {
+# 	onComplete: ()-> fs.dir temp(),empty:true
+# 	onStart: ()->
+# 		theImporter = ()->
+# 			require('./samples/small1')
+# 			require('./samples/small2')
+# 			require('./samples/small3')
+# 			require('./samples/small4')
+# 			require('./samples/small5')
+# 			require('./samples/small6')
+
+# })
+# 	.add('native', ()->
+# 		runClean('native')
+# 	, cleanDirCache)
+
+# 	.add('ours (uncached)', ()->
+# 		runClean('ours')
+# 	, cleanDirCache)
+
+# 	.add('ours (cached)', ()->
+# 		runClean('ours')
+# 	)
+
+# 	.run()
+
+
+
+# suite('4 medium modules', {
+# 	onComplete: ()-> fs.dir temp(),empty:true
+# 	onStart: ()->
+# 		theImporter = ()->
+# 			require('./samples/medium1')
+# 			require('./samples/medium2')
+# 			require('./samples/medium3')
+# 			require('./samples/medium4')
+
+# })
+# 	.add('native', ()->
+# 		runClean('native')
+# 	, cleanDirCache)
+
+# 	.add('ours (uncached)', ()->
+# 		runClean('ours')
+# 	, cleanDirCache)
+
+# 	.add('ours (cached)', ()->
+# 		runClean('ours')
+# 	)
+
+# 	.run()
+
+
+
+suite('2 large modules', {
 	onComplete: ()-> fs.dir temp(),empty:true
 	onStart: ()->
 		theImporter = ()->
-			require('./samples/small1')
-			require('./samples/small2')
-			require('./samples/small3')
-			return
+			require('simplyimport/lib/simplyimport')
+			require('simplywatch/lib/simplywatch')
+
 })
 	.add('native', ()->
 		runClean('native')
@@ -73,84 +153,6 @@ suite('3 small modules', {
 	)
 
 	.run()
-
-
-
-# suite('6 small modules', {
-# 	onComplete: ()-> fs.dir temp(),empty:true
-# 	onStart: ()->
-# 		createImporters """
-# 			require('../samples/small1');
-# 			require('../samples/small2');
-# 			require('../samples/small3');
-# 			require('../samples/small4');
-# 			require('../samples/small5');
-# 			require('../samples/small6');
-# 		"""
-# })
-# 	.add('native', ()->
-# 		exec "node #{temp('native.js')}", {env}
-# 	, cleanDirCache)
-
-# 	.add('ours (uncached)', ()->
-# 		exec "node #{temp('ours.js')}", {env}
-# 	, cleanDirCache)
-
-# 	.add('ours (cached)', ()->
-# 		exec "node #{temp('ours.js')}", {env}
-# 	)
-
-# 	.run()
-
-
-
-# suite('4 medium modules', {
-# 	onComplete: ()-> fs.dir temp(),empty:true
-# 	onStart: ()->
-# 		createImporters """
-# 			require('../samples/medium1');
-# 			require('../samples/medium2');
-# 			require('../samples/medium3');
-# 			require('../samples/medium4');
-# 		"""
-# })
-# 	.add('native', ()->
-# 		exec "node #{temp('native.js')}", {env}
-# 	, cleanDirCache)
-
-# 	.add('ours (uncached)', ()->
-# 		exec "node #{temp('ours.js')}", {env}
-# 	, cleanDirCache)
-
-# 	.add('ours (cached)', ()->
-# 		exec "node #{temp('ours.js')}", {env}
-# 	)
-
-# 	.run()
-
-
-
-# suite('2 large modules', {
-# 	onComplete: ()-> fs.dir temp(),empty:true
-# 	onStart: ()->
-# 		createImporters """
-# 			require('simplyimport/lib/simplyimport');
-# 			require('simplywatch/lib/simplywatch');
-# 		"""
-# })
-# 	.add('native', ()->
-# 		exec "node #{temp('native.js')}", {env}
-# 	, extend {minSamples:10}, cleanDirCache)
-
-# 	.add('ours (uncached)', ()->
-# 		exec "node #{temp('ours.js')}", {env}
-# 	, extend {minSamples:10}, cleanDirCache)
-
-# 	.add('ours (cached)', ()->
-# 		exec "node #{temp('ours.js')}", {env}
-# 	, minSamples:10)
-
-# 	.run()
 
 
 

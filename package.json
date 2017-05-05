@@ -1,6 +1,6 @@
 {
   "name": "coffee-register",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "lib/index.js",
   "mocha_opts": "-u tdd --slow 1000 --timeout 5000",

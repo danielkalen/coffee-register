@@ -23,6 +23,7 @@ deRegister = ()->
 	delete require.extensions['.litcoffee']
 	delete require.extensions['.coffee.md']
 	delete require.cache[require.resolve('coffee-script/register')]
+	delete require.cache[require.resolve('coffee-script/lib/coffee-script/register')]
 	delete require.cache[require.resolve('../')]
 	samples = fs.list(sample())
 	for sampleFile in samples
@@ -88,6 +89,7 @@ suite "coffee-register", ()->
 				hashB = md5 fs.read sample('.sampleB.coffee')
 				hashC = md5 fs.read sample('sampleC.extension.coffee')
 				hashAll = md5 fs.read sample('all.coffee')
+				global.hashB = hashB
 
 				expect(list).to.contain "#{hashA}.js"
 				expect(list).to.contain "#{hashB}.js"
@@ -98,9 +100,9 @@ suite "coffee-register", ()->
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.tap (list)-> expect(list.length).to.equal 4
-			.then (list)-> fs.writeAsync temp('.cache',list[2]), fs.read(temp('.cache',list[2])).replace("'sample", "'SAMPLE")
+			.then (list)-> fs.writeAsync temp('.cache',"#{hashB}.js"), fs.read(temp('.cache',"#{hashB}.js")).replace("'sample", "'SAMPLE")
 			.then ()-> runClean(src)
-			.then (result)-> expect(result).to.equal('sampleA-sampleB-SAMPLEC')
+			.then (result)-> expect(result).to.equal('sampleA-SAMPLEB-sampleC')
 
 
 	test "cached result deletion", ()->

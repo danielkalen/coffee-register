@@ -48,6 +48,7 @@ deRegister = function() {
   delete require.extensions['.litcoffee'];
   delete require.extensions['.coffee.md'];
   delete require.cache[require.resolve('coffee-script/register')];
+  delete require.cache[require.resolve('coffee-script/lib/coffee-script/register')];
   delete require.cache[require.resolve('../')];
   samples = fs.list(sample());
   for (i = 0, len = samples.length; i < len; i++) {
@@ -133,6 +134,7 @@ suite("coffee-register", function() {
       hashB = md5(fs.read(sample('.sampleB.coffee')));
       hashC = md5(fs.read(sample('sampleC.extension.coffee')));
       hashAll = md5(fs.read(sample('all.coffee')));
+      global.hashB = hashB;
       expect(list).to.contain(hashA + ".js");
       expect(list).to.contain(hashB + ".js");
       expect(list).to.contain(hashC + ".js");
@@ -146,11 +148,11 @@ suite("coffee-register", function() {
     }).tap(function(list) {
       return expect(list.length).to.equal(4);
     }).then(function(list) {
-      return fs.writeAsync(temp('.cache', list[2]), fs.read(temp('.cache', list[2])).replace("'sample", "'SAMPLE"));
+      return fs.writeAsync(temp('.cache', hashB + ".js"), fs.read(temp('.cache', hashB + ".js")).replace("'sample", "'SAMPLE"));
     }).then(function() {
       return runClean(src);
     }).then(function(result) {
-      return expect(result).to.equal('sampleA-sampleB-SAMPLEC');
+      return expect(result).to.equal('sampleA-SAMPLEB-sampleC');
     });
   });
   test("cached result deletion", function() {
