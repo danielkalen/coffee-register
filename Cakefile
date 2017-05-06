@@ -5,6 +5,7 @@ md5 = require 'md5'
 path = require 'path'
 CACHE_FILE = path.resolve '.config','buildcache'
 
+process.exit(0) if process.env.CI
 fs.file(CACHE_FILE)
 
 compileCoffee = (srcFile, destFile)->
