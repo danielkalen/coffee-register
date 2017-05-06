@@ -1,4 +1,4 @@
-var Benchmark, CACHE_DIR, Promise, chalk, cleanDirCache, deRegister, exec, extend, fs, path, runClean, sample, suite, temp, theImporter,
+var Benchmark, COFFEE_CACHE_DIR, Promise, chalk, deRegister, exec, extend, fs, path, runClean, sample, suite, temp, theImporter,
   slice = [].slice;
 
 Promise = require('bluebird');
@@ -23,15 +23,7 @@ temp = function() {
   return path.join.apply(path, [__dirname, 'temp'].concat(slice.call(arguments)));
 };
 
-process.env.CACHE_DIR = CACHE_DIR = temp('.cache');
-
-cleanDirCache = {
-  onCycle: function() {
-    return fs.dir(CACHE_DIR, {
-      empty: true
-    });
-  }
-};
+process.env.COFFEE_CACHE_DIR = COFFEE_CACHE_DIR = temp('.cache');
 
 fs.dir(temp(), {
   empty: true
@@ -42,10 +34,10 @@ theImporter = null;
 runClean = function(type) {
   deRegister();
   switch (type) {
-    case 'native':
+    case 'native coffee':
       require('coffee-script/register');
       break;
-    case 'ours':
+    case 'coffee-register':
       require('../');
   }
   return theImporter();
@@ -88,6 +80,79 @@ suite = function(name, options) {
   });
 };
 
+suite('3 small modules', {
+  onComplete: function() {
+    return fs.dir(temp(), {
+      empty: true
+    });
+  },
+  onStart: function() {
+    return theImporter = function() {
+      require('./samples/small1');
+      require('./samples/small2');
+      require('./samples/small3');
+    };
+  }
+}).add('native coffee', function() {
+  return runClean('native coffee');
+}).add('coffee-register (uncached)', function() {
+  process.env.COFFEE_NO_CACHE = true;
+  return runClean('coffee-register');
+}).add('coffee-register (cached)', function() {
+  delete process.env.COFFEE_NO_CACHE;
+  return runClean('coffee-register');
+}).run();
+
+suite('6 small modules', {
+  onComplete: function() {
+    return fs.dir(temp(), {
+      empty: true
+    });
+  },
+  onStart: function() {
+    return theImporter = function() {
+      require('./samples/small1');
+      require('./samples/small2');
+      require('./samples/small3');
+      require('./samples/small4');
+      require('./samples/small5');
+      return require('./samples/small6');
+    };
+  }
+}).add('native coffee', function() {
+  return runClean('native coffee');
+}).add('coffee-register (uncached)', function() {
+  process.env.COFFEE_NO_CACHE = true;
+  return runClean('coffee-register');
+}).add('coffee-register (cached)', function() {
+  delete process.env.COFFEE_NO_CACHE;
+  return runClean('coffee-register');
+}).run();
+
+suite('4 medium modules', {
+  onComplete: function() {
+    return fs.dir(temp(), {
+      empty: true
+    });
+  },
+  onStart: function() {
+    return theImporter = function() {
+      require('./samples/medium1');
+      require('./samples/medium2');
+      require('./samples/medium3');
+      return require('./samples/medium4');
+    };
+  }
+}).add('native coffee', function() {
+  return runClean('native coffee');
+}).add('coffee-register (uncached)', function() {
+  process.env.COFFEE_NO_CACHE = true;
+  return runClean('coffee-register');
+}).add('coffee-register (cached)', function() {
+  delete process.env.COFFEE_NO_CACHE;
+  return runClean('coffee-register');
+}).run();
+
 suite('2 large modules', {
   onComplete: function() {
     return fs.dir(temp(), {
@@ -100,10 +165,12 @@ suite('2 large modules', {
       return require('simplywatch/lib/simplywatch');
     };
   }
-}).add('native', function() {
-  return runClean('native');
-}, cleanDirCache).add('ours (uncached)', function() {
-  return runClean('ours');
-}, cleanDirCache).add('ours (cached)', function() {
-  return runClean('ours');
+}).add('native coffee', function() {
+  return runClean('native coffee');
+}).add('coffee-register (uncached)', function() {
+  process.env.COFFEE_NO_CACHE = true;
+  return runClean('coffee-register');
+}).add('coffee-register (cached)', function() {
+  delete process.env.COFFEE_NO_CACHE;
+  return runClean('coffee-register');
 }).run();
