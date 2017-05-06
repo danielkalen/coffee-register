@@ -40,3 +40,5 @@ jspm_packages
 *.sublime-*
 
 .cache/
+
+buildcache

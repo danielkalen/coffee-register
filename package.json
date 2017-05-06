@@ -6,15 +6,12 @@
   "mocha_opts": "-u tdd --slow 1000 --timeout 5000",
   "scripts": {
     "prepublish": "npm run test",
-    "build": "cat src/index.coffee | coffee -cbs --no-header > lib/index.js",
-    "build:test": "cat test/test.coffee | coffee -cbs --no-header > test/test.js",
-    "build:benchmarks": "cat benchmarks/runner.coffee | coffee -cbs --no-header > benchmarks/runner.js",
     "coverage": "npm run coverage:run && npm run coverage:badge",
     "coverage:run": "forCoverage=true istanbul cover --dir coverage node_modules/mocha/bin/_mocha -- $npm_package_mocha_opts",
     "coverage:badge": "badge-gen -d ./.config/badges/coverage",
     "benchmark": "npm run bench",
-    "bench": "npm run build:benchmarks && node benchmarks/runner.js",
-    "test": "npm run build:test && mocha $npm_package_mocha_opts"
+    "bench": "cake build && node benchmarks/runner.js",
+    "test": "cake build:test && mocha $npm_package_mocha_opts"
   },
   "author": "danielkalen",
   "repository": {
