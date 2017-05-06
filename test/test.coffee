@@ -11,7 +11,7 @@ expect = chai.expect
 listDir = (dir)-> fs.listAsync(dir).then (files)-> files.filter (file)-> file[0] isnt '.'
 sample = ()-> path.join __dirname,'samples',arguments...
 temp = ()-> path.join __dirname,'temp',arguments...
-process.env.CACHE_DIR = temp('.cache')
+process.env.COFFEE_CACHE_DIR = temp('.cache')
 
 runClean = (fn)->
 	deRegister()

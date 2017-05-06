@@ -35,7 +35,7 @@ temp = function() {
   return path.join.apply(path, [__dirname, 'temp'].concat(slice.call(arguments)));
 };
 
-process.env.CACHE_DIR = temp('.cache');
+process.env.COFFEE_CACHE_DIR = temp('.cache');
 
 runClean = function(fn) {
   deRegister();
