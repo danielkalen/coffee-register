@@ -3,24 +3,25 @@ child_process = require 'child_process'
 fs = require 'fs-jetpack'
 path = require 'path'
 md5 = require 'md5'
-CACHE_DIR = if process.env.CACHE_DIR then path.resolve(process.env.CACHE_DIR) else path.join __dirname,'..','.cache'
-
+COFFEE_CACHE_DIR = if process.env.COFFEE_CACHE_DIR then path.resolve(process.env.COFFEE_CACHE_DIR) else path.join __dirname,'..','.cache'
+COFFEE_NO_CACHE = process.env.COFFEE_NO_CACHE
+serveCached = not COFFEE_NO_CACHE
 
 ## ==========================================================================
 ## require.extensions patch
 ## ========================================================================== 
 register = (extensions)->
 	targetExtensions = [].concat(extensions, '.coffee')
-	fs.dir(CACHE_DIR)
-	cachedFiles = fs.list(CACHE_DIR).filter (file)-> file.slice(-3) is '.js'
+	fs.dir(COFFEE_CACHE_DIR)
+	cachedFiles = fs.list(COFFEE_CACHE_DIR).filter (file)-> file.slice(-3) is '.js'
 
 	loadFile = (module, filename)->
 		content = fs.read(filename)
 		hash = md5(content)
 		cachedFile = "#{hash}.js"
-		cachedFilePath = path.join CACHE_DIR,cachedFile
-		
-		if cachedFiles.indexOf(cachedFile) isnt -1
+		cachedFilePath = path.join COFFEE_CACHE_DIR,cachedFile
+
+		if serveCached and cachedFiles.indexOf(cachedFile) isnt -1
 			compiledContent = fs.read cachedFilePath
 		else
 			compiledContent = Coffeescript.compile content, {filename, bare:true, inlineMap:true}
@@ -31,9 +32,8 @@ register = (extensions)->
 
 	for extension in targetExtensions when extension
 		require.extensions[extension] = loadFile
-		# Object.defineProperty require.extensions, '.coffee', value:loadFile
 
-	return
+	return register
 
 
 
@@ -59,8 +59,7 @@ if child_process
 
 
 
-register()
-module.exports = register
+module.exports = register()
 
 
 
