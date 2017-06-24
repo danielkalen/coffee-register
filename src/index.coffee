@@ -58,8 +58,13 @@ if child_process
 
 
 
+## ==========================================================================
+## Source map support (necessary for cached files)
+## ========================================================================== 
+### istanbul ignore next ###
+if process.env.SOURCE_MAPS or process.env.SOURCE_MAP
+	require('source-map-support').install(hookRequire:true)
+
+
 
 module.exports = register()
-
-
-
