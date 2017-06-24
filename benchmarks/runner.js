@@ -1,9 +1,11 @@
-var Benchmark, COFFEE_CACHE_DIR, Promise, chalk, deRegister, exec, extend, fs, path, runClean, sample, suite, temp, theImporter,
+var Benchmark, COFFEE_CACHE_DIR, Promise, benchmarks, chalk, deRegister, exec, extend, fs, path, runClean, sample, suite, temp, theImporter,
   slice = [].slice;
 
 Promise = require('bluebird');
 
 Benchmark = require('benchmark');
+
+benchmarks = require('beautify-benchmark');
 
 exec = require('child_process').execSync;
 
@@ -72,11 +74,11 @@ deRegister = function() {
 
 suite = function(name, options) {
   return Benchmark.Suite(name, options).on('start', function() {
-    return console.log(chalk.green(name));
-  }).on('cycle', function(event) {
-    return console.log(chalk.dim('\t' + String(event.target)));
+    return console.log(chalk.dim(name));
+  }).on('cycle', function() {
+    return benchmarks.add(arguments[0].target);
   }).on('complete', function() {
-    return console.log("\t" + (chalk.red('Fastest: ')) + " " + (this.filter('fastest').map('name').join(', ')));
+    return benchmarks.log();
   });
 };
 

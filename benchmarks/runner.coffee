@@ -1,5 +1,6 @@
 Promise = require 'bluebird'
 Benchmark = require 'benchmark'
+benchmarks = require 'beautify-benchmark'
 exec = require('child_process').execSync
 fs = require 'fs-jetpack'
 path = require 'path'
@@ -46,9 +47,9 @@ deRegister = ()->
 
 suite = (name, options)->
 	Benchmark.Suite(name, options)
-		.on 'start', ()-> console.log chalk.green name
-		.on 'cycle', (event)-> console.log chalk.dim '\t'+String(event.target)
-		.on 'complete', ()-> console.log "\t#{chalk.red 'Fastest: '} #{this.filter('fastest').map('name').join ', '}"
+		.on 'start', ()-> console.log chalk.dim name
+		.on 'cycle', ()-> benchmarks.add arguments[0].target
+		.on 'complete', ()-> benchmarks.log()
 
 
 
