@@ -29,6 +29,7 @@
     "extend": "^3.0.1",
     "matcha": "^0.7.0",
     "mocha": "^3.3.0",
+    "promise-break": "^0.1.0",
     "simplyimport": "^3.5.8",
     "simplywatch": "^2.5.4"
   },

@@ -1,30 +1,29 @@
 fs = require 'fs-jetpack'
 Promise = require 'bluebird'
+promiseBreak = require 'promise-break'
 Coffeescript = require 'coffee-script'
 md5 = require 'md5'
 path = require 'path'
-CACHE_FILE = path.resolve '.config','buildcache'
+CACHE_DIR = path.resolve '.config','buildcache'
 
 process.exit(0) if process.env.CI
-fs.file(CACHE_FILE)
+fs.dir(CACHE_DIR)
 
 compileCoffee = (srcFile, destFile)->
 	Promise.resolve()
-		.then ()-> Promise.all [
-			fs.readAsync srcFile
-			fs.existsAsync destFile
-			fs.readAsync(CACHE_FILE).then (cache)-> cache.split '\n'
-		]
-		.spread (src, destExists, cache)->
+		.then ()-> fs.readAsync(srcFile)
+		.then (src)->
 			srcHash = md5(src)
-			
-			return if destExists and cache.includes(srcHash)
+			cacheDest = path.join(CACHE_DIR, "#{srcHash}.js")
 			
 			Promise.resolve()
+				.then ()-> fs.existsAsync(cacheDest)
+				.then (cacheExists)-> promiseBreak() if cacheExists
 				.then ()-> console.log "Building #{srcFile}"
 				.then ()-> Coffeescript.compile src, {bare:true}
-				.then (output)-> fs.writeAsync destFile, output
-				.then ()-> fs.writeAsync CACHE_FILE, cache.concat(srcHash).join '\n'
+				.then (output)-> fs.writeAsync cacheDest, output
+				.catch promiseBreak.end
+				.then ()-> fs.copyAsync cacheDest, destFile, overwrite:true
 
 
 task 'build', 'compile lib, test, and benchmark files', ()->
