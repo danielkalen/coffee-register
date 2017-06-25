@@ -36,7 +36,7 @@ theImporter = null;
 runClean = function(type) {
   deRegister();
   switch (type) {
-    case 'native coffee':
+    case 'coffee-script/register':
       require('coffee-script/register');
       break;
     case 'coffee-register':
@@ -95,8 +95,8 @@ suite('3 small modules', {
       require('./samples/small3');
     };
   }
-}).add('native coffee', function() {
-  return runClean('native coffee');
+}).add('coffee-script/register', function() {
+  return runClean('coffee-script/register');
 }).add('coffee-register (uncached)', function() {
   process.env.COFFEE_NO_CACHE = true;
   return runClean('coffee-register');
@@ -121,8 +121,8 @@ suite('6 small modules', {
       return require('./samples/small6');
     };
   }
-}).add('native coffee', function() {
-  return runClean('native coffee');
+}).add('coffee-script/register', function() {
+  return runClean('coffee-script/register');
 }).add('coffee-register (uncached)', function() {
   process.env.COFFEE_NO_CACHE = true;
   return runClean('coffee-register');
@@ -145,8 +145,8 @@ suite('4 medium modules', {
       return require('./samples/medium4');
     };
   }
-}).add('native coffee', function() {
-  return runClean('native coffee');
+}).add('coffee-script/register', function() {
+  return runClean('coffee-script/register');
 }).add('coffee-register (uncached)', function() {
   process.env.COFFEE_NO_CACHE = true;
   return runClean('coffee-register');
@@ -167,8 +167,8 @@ suite('2 large modules', {
       return require('simplywatch/lib/simplywatch');
     };
   }
-}).add('native coffee', function() {
-  return runClean('native coffee');
+}).add('coffee-script/register', function() {
+  return runClean('coffee-script/register');
 }).add('coffee-register (uncached)', function() {
   process.env.COFFEE_NO_CACHE = true;
   return runClean('coffee-register');

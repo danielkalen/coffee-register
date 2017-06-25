@@ -17,7 +17,7 @@ theImporter = null
 runClean = (type)->
 	deRegister()
 	switch type
-		when 'native coffee' then require('coffee-script/register')
+		when 'coffee-script/register' then require('coffee-script/register')
 		when 'coffee-register' then require('../')
 
 	theImporter()
@@ -62,8 +62,8 @@ suite('3 small modules', {
 			require('./samples/small3')
 			return
 })
-	.add 'native coffee', ()->
-		runClean('native coffee')
+	.add 'coffee-script/register', ()->
+		runClean('coffee-script/register')
 
 	.add 'coffee-register (uncached)', ()->
 		process.env.COFFEE_NO_CACHE = true
@@ -90,8 +90,8 @@ suite('6 small modules', {
 			require('./samples/small6')
 
 })
-	.add 'native coffee', ()->
-		runClean('native coffee')
+	.add 'coffee-script/register', ()->
+		runClean('coffee-script/register')
 
 	.add 'coffee-register (uncached)', ()->
 		process.env.COFFEE_NO_CACHE = true
@@ -116,8 +116,8 @@ suite('4 medium modules', {
 			require('./samples/medium4')
 
 })
-	.add 'native coffee', ()->
-		runClean('native coffee')
+	.add 'coffee-script/register', ()->
+		runClean('coffee-script/register')
 
 	.add 'coffee-register (uncached)', ()->
 		process.env.COFFEE_NO_CACHE = true
@@ -139,8 +139,8 @@ suite('2 large modules', {
 			require('simplywatch/lib/simplywatch')
 
 })
-	.add 'native coffee', ()->
-		runClean('native coffee')
+	.add 'coffee-script/register', ()->
+		runClean('coffee-script/register')
 
 	.add 'coffee-register (uncached)', ()->
 		process.env.COFFEE_NO_CACHE = true
