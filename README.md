@@ -7,10 +7,6 @@
 
 `require` coffeescript files "on-the-fly" without precompilation up to 2000% faster than the official [coffee-script/register](https://github.com/jashkenas/coffeescript) package.
 
-## Benchmarks
-[![Benchmarks](benchmarks/results.png?raw=true)](https://github.com/danielkalen/coffee-register)
-
-
 ## Usage
 **index.js**:
 ```javascript
@@ -23,8 +19,13 @@ require('./dir') // loads './dir/index.coffee'
 ```
 
 
+## Benchmarks
+[![Benchmarks](benchmarks/results.png?raw=true)](https://github.com/danielkalen/coffee-register)
+
+
 ## How is it so much faster?
-There are several reasons:
+There are two primary reasons:
+
 a) This module attaches a hook in node's module system to be invoked only for files ending with `.coffee` as opposed to the official coffee-script/register which hooks onto `.coffee`, `.litcoffee`, `.coffee.md`. Each additional hook imposes overhead on module loading times and since the latter 2 extensions are rarely used they have been ommited by default (although they can be manually registered by using `require('coffee-register').register(['.coffee', '.litcoffee', ...])` and any other extension you wish)
 
 b) By leverging dynamic caching. When `coffee-register` encounters a coffee file it compiles it and then saves it to disk, mapping its content's hash to the saved compiled file so that the next time it encounters this coffee file it inspects its content's hash and attempts to load it from cache. The cache never has to be purged as the process is done automatically for you.
