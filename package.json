@@ -5,8 +5,9 @@
   "main": "lib/index.js",
   "mocha_opts": "-u tdd --slow 1000 --timeout 5000",
   "scripts": {
-    "postversion": "cake build",
+    "postversion": "cake build && git add . && git commit -a -m '[Build]'",
     "prepublishOnly": "npm run test",
+    "postpublish": "git push",
     "coverage": "npm run coverage:run && npm run coverage:badge",
     "coverage:run": "forCoverage=true istanbul cover --dir coverage node_modules/mocha/bin/_mocha -- $npm_package_mocha_opts",
     "coverage:badge": "badge-gen -d ./.config/badges/coverage",
