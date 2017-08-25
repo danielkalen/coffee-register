@@ -34,9 +34,9 @@
     "simplywatch": "^2.5.4"
   },
   "dependencies": {
+    "@danielkalen/source-map-support": "^0.4.16",
     "coffee-script": "^1.12.5",
     "fs-jetpack": "^0.13.3",
-    "md5": "^2.2.1",
-    "source-map-support": "^0.4.15"
+    "md5": "^2.2.1"
   }
 }

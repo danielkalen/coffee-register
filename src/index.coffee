@@ -63,7 +63,7 @@ if child_process
 ## ========================================================================== 
 ### istanbul ignore next ###
 if process.env.SOURCE_MAPS or process.env.SOURCE_MAP
-	require('source-map-support').install(hookRequire:true)
+	require('@danielkalen/source-map-support').install(hookRequire:true)
 
 
 
