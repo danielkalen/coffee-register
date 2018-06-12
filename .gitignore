@@ -39,7 +39,8 @@ jspm_packages
 # Sublime files
 *.sublime-*
 
-.cache/
+.cache/*
+!.cache/.gitkeep
 
 buildcache
 
