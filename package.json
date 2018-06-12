@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@danielkalen/source-map-support": "^0.4.16",
-    "coffee-script": "^1.12.5",
+    "coffeescript": "^2.3.1",
     "fs-jetpack": "^0.13.3",
     "md5": "^2.2.1"
   }

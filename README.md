@@ -41,6 +41,19 @@ Example:
 SOURCE_MAPS=1 node index.js
 ```
 
+## Coffeescript v1 vs v2
+This module can use both v1 and v2 for compiling.
+
+For the lastest v1 compiler:
+```bash
+$ npm install coffee-register@1
+```
+
+For the lastest v2 compiler:
+```bash
+$ npm install coffee-register
+```
+
 
 ## License
 MIT © [Daniel Kalen](https://github.com/danielkalen)

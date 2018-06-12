@@ -9,7 +9,7 @@ serveCached = not COFFEE_NO_CACHE
 ## require.extensions patch
 ## ========================================================================== 
 register = (extensions)->
-	coffeescript = require 'coffee-script'
+	coffeescript = require 'coffeescript'
 	md5 = require 'md5'
 	
 	targetExtensions = [].concat(extensions, '.coffee')
@@ -44,7 +44,7 @@ register = (extensions)->
 ## ========================================================================== 
 if child_process
 	origFork = child_process.fork
-	coffeeBinary = path.resolve './node_modules/coffee-script/bin/coffee'
+	coffeeBinary = path.resolve './node_modules/coffeescript/bin/coffee'
 
 	child_process.fork = (filePath, args, options)->
 		if path.extname(filePath) is '.coffee'

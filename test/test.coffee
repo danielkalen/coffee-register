@@ -153,6 +153,21 @@ suite "coffee-register", ()->
 			.finally ()-> fs.write sample('all.coffee'), origContents
 
 
+	test "es2015", ()->
+		src = ()->
+			require('../')
+			require('./samples/es2015.coffee')
+		
+		Promise.resolve()
+			.then ()-> runClean(src)
+			.tap (result)-> expect(typeof result).to.equal 'function'
+			.then (result)-> result('daniel')
+			.then (result)-> expect(result).to.eql
+				name: 'daniel'
+				job: 'developer'
+				status: 'active'
+
+
 
 
 

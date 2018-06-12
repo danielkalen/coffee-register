@@ -189,7 +189,7 @@ suite("coffee-register", function() {
       return expect(list.length).to.equal(4);
     });
   });
-  return test("cached result update/change", function() {
+  test("cached result update/change", function() {
     var origContents, src;
     src = function() {
       require('../');
@@ -232,6 +232,26 @@ suite("coffee-register", function() {
       return expect(list.length).to.equal(5);
     })["finally"](function() {
       return fs.write(sample('all.coffee'), origContents);
+    });
+  });
+  return test("es2015", function() {
+    var src;
+    src = function() {
+      require('../');
+      return require('./samples/es2015.coffee');
+    };
+    return Promise.resolve().then(function() {
+      return runClean(src);
+    }).tap(function(result) {
+      return expect(typeof result).to.equal('function');
+    }).then(function(result) {
+      return result('daniel');
+    }).then(function(result) {
+      return expect(result).to.eql({
+        name: 'daniel',
+        job: 'developer',
+        status: 'active'
+      });
     });
   });
 });
