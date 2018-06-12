@@ -190,11 +190,12 @@ suite("coffee-register", function() {
     });
   });
   return test("cached result update/change", function() {
-    var src;
+    var origContents, src;
     src = function() {
       require('../');
       return require('./samples/all.coffee');
     };
+    origContents = null;
     return Promise.resolve().then(function() {
       return listDir(temp('.cache'));
     }).then(function(list) {
@@ -209,6 +210,8 @@ suite("coffee-register", function() {
       return expect(list.length).to.equal(4);
     }).then(function() {
       return fs.read(sample('all.coffee'));
+    }).tap(function(contents) {
+      return origContents = contents;
     }).then(function(contents) {
       return fs.write(sample('all.coffee'), contents + ' ');
     }).then(function() {
@@ -227,6 +230,8 @@ suite("coffee-register", function() {
       return listDir(temp('.cache'));
     }).then(function(list) {
       return expect(list.length).to.equal(5);
+    })["finally"](function() {
+      return fs.write(sample('all.coffee'), origContents);
     });
   });
 });

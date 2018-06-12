@@ -131,6 +131,7 @@ suite "coffee-register", ()->
 			require('../')
 			require('./samples/all.coffee')
 
+		origContents = null
 		Promise.resolve()
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list).to.eql []
@@ -139,6 +140,7 @@ suite "coffee-register", ()->
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list.length).to.equal 4
 			.then ()-> fs.read sample('all.coffee')
+			.tap (contents)-> origContents = contents
 			.then (contents)-> fs.write sample('all.coffee'), contents+' '
 			.then ()-> runClean(src)
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
@@ -148,7 +150,7 @@ suite "coffee-register", ()->
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list.length).to.equal 5
-				
+			.finally ()-> fs.write sample('all.coffee'), origContents
 
 
 
