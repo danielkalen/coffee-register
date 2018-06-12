@@ -50,6 +50,7 @@ suite = (name, options)->
 		.on 'start', ()-> console.log chalk.dim name
 		.on 'cycle', ()-> benchmarks.add arguments[0].target
 		.on 'complete', ()-> benchmarks.log()
+		.on 'complete', ({target})-> console.log(target.hz, target.stats.rme, target.count, target.times); process.exit()
 
 
 

@@ -79,6 +79,11 @@ suite = function(name, options) {
     return benchmarks.add(arguments[0].target);
   }).on('complete', function() {
     return benchmarks.log();
+  }).on('complete', function(arg) {
+    var target;
+    target = arg.target;
+    console.log(target.hz, target.stats.rme, target.count, target.times);
+    return process.exit();
   });
 };
 
