@@ -1,8 +1,6 @@
-Coffeescript = require 'coffee-script'
 child_process = require 'child_process'
 fs = require 'fs-jetpack'
 path = require 'path'
-md5 = require 'md5'
 COFFEE_CACHE_DIR = if process.env.COFFEE_CACHE_DIR then path.resolve(process.env.COFFEE_CACHE_DIR) else path.join __dirname,'..','.cache'
 COFFEE_NO_CACHE = process.env.COFFEE_NO_CACHE
 serveCached = not COFFEE_NO_CACHE
@@ -11,6 +9,9 @@ serveCached = not COFFEE_NO_CACHE
 ## require.extensions patch
 ## ========================================================================== 
 register = (extensions)->
+	coffeescript = require 'coffee-script'
+	md5 = require 'md5'
+	
 	targetExtensions = [].concat(extensions, '.coffee')
 	fs.dir(COFFEE_CACHE_DIR)
 	cachedFiles = fs.list(COFFEE_CACHE_DIR).filter (file)-> file.slice(-3) is '.js'
@@ -24,7 +25,7 @@ register = (extensions)->
 		if serveCached and cachedFiles.indexOf(cachedFile) isnt -1
 			compiledContent = fs.read cachedFilePath
 		else
-			compiledContent = Coffeescript.compile content, {filename, bare:true, inlineMap:true}
+			compiledContent = coffeescript.compile content, {filename, bare:true, inlineMap:true}
 			fs.write cachedFilePath, compiledContent
 		
 		module._compile compiledContent, filename
