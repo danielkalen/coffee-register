@@ -13,8 +13,9 @@ sample = ()-> path.join __dirname,'samples',arguments...
 temp = ()-> path.join __dirname,'temp',arguments...
 process.env.COFFEE_CACHE_DIR = temp('.cache')
 
-loadCleanly = (target, options)->
+loadCleanly = (target, options, deleteCache)->
 	deRegister()
+	clearCache() if deleteCache
 	require('../')(null, options)
 	require(target)
 
@@ -40,6 +41,9 @@ deRegisterCache = ()->
 	cached = fs.list(temp('.cache'))
 	for cachedFile in cached
 		delete require.cache[temp('.cache',cachedFile)]
+
+clearCache = ()->
+	fs.dir(temp('.cache'), empty:true)
 
 
 suite "coffee-register", ()->
@@ -145,23 +149,36 @@ suite "coffee-register", ()->
 				job: 'developer'
 				status: 'active'
 
-	test "require.extensions locking", ()->
-		deRegister()
-		require('../')(null, lock:false)
-		expect(require('./samples')).to.equal 'theIndex'
+	suite "options", ()->
+		fakeLoader = (module, filename)->
+			module._compile('module.exports = "overwrite"', filename)
 
-		deRegisterSamples()
-		require.extensions['.coffee'] = (module, filename)-> module._compile('module.exports = "overwrite"', filename)
-		expect(require('./samples')).to.equal 'overwrite'
+		test "version", ()->
+			expect(()->
+				loadCleanly('./samples/es2015.coffee', version:2, true)('daniel')
+			).not.to.throw()
+			
+			expect(()->
+				loadCleanly('./samples/es2015.coffee', version:1, true)('daniel')
+			).to.throw()
+		
+		test "lock", ()->
+			deRegister()
+			require('../')(null, lock:false)
+			expect(require('./samples')).to.equal 'theIndex'
 
-		
-		deRegister()
-		require('../')(null, lock:true)
-		expect(require('./samples')).to.equal 'theIndex'
-		
-		deRegisterSamples()
-		require.extensions['.coffee'] = (module, filename)-> module._compile('module.exports = "overwrite"', filename)
-		expect(require('./samples')).to.equal 'theIndex'
+			deRegisterSamples()
+			require.extensions['.coffee'] = fakeLoader
+			expect(require('./samples')).to.equal 'overwrite'
+
+			
+			deRegister()
+			require('../')(null, lock:true)
+			expect(require('./samples')).to.equal 'theIndex'
+			
+			deRegisterSamples()
+			require.extensions['.coffee'] = fakeLoader
+			expect(require('./samples')).to.equal 'theIndex'
 
 
 

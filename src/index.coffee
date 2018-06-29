@@ -9,10 +9,11 @@ serveCached = not COFFEE_NO_CACHE
 ## require.extensions patch
 ## ========================================================================== 
 register = (extensions=[], options)->
-	coffeescript = require 'coffeescript'
-	md5 = require 'md5'
-	
 	options = getOptions(options)
+	
+	md5 = require 'md5'
+	coffeescript = if options.version is 1 then require('coffee-script') else require('coffeescript')
+	
 	targetExtensions = [].concat(extensions, '.coffee')
 	fs.dir(COFFEE_CACHE_DIR)
 	cachedFiles = fs.list(COFFEE_CACHE_DIR).filter (file)-> file.slice(-3) is '.js'
@@ -43,6 +44,7 @@ register = (extensions=[], options)->
 
 getOptions = (options={})->
 	options.lock ?= false
+	options.version ?= 2
 	return options
 
 
