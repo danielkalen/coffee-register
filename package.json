@@ -1,6 +1,6 @@
 {
   "name": "coffee-register",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "require CoffeeScript files on-the-fly without precompilation up to 2000% faster than the official package",
   "main": "lib/index.js",
   "mocha_opts": "-u tdd --slow 1000 --timeout 5000",
