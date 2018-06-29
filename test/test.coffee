@@ -13,9 +13,10 @@ sample = ()-> path.join __dirname,'samples',arguments...
 temp = ()-> path.join __dirname,'temp',arguments...
 process.env.COFFEE_CACHE_DIR = temp('.cache')
 
-runClean = (fn)->
+loadCleanly = (target, options)->
 	deRegister()
-	fn()
+	require('../')(null, options)
+	require(target)
 
 
 deRegister = ()->
@@ -25,15 +26,20 @@ deRegister = ()->
 	delete require.cache[require.resolve('coffee-script/register')]
 	delete require.cache[require.resolve('coffee-script/lib/coffee-script/register')]
 	delete require.cache[require.resolve('../')]
+	deRegisterSamples()
+	deRegisterCache()
+
+	return
+	
+deRegisterSamples = ()->
 	samples = fs.list(sample())
 	for sampleFile in samples
 		delete require.cache[sample(sampleFile)]
-	
+
+deRegisterCache = ()->
 	cached = fs.list(temp('.cache'))
 	for cachedFile in cached
 		delete require.cache[temp('.cache',cachedFile)]
-
-	return
 
 
 suite "coffee-register", ()->
@@ -42,45 +48,29 @@ suite "coffee-register", ()->
 	setup ()-> fs.dirAsync temp('.cache'), empty:true
 
 
-	test "basic register", ()->
-		src = ()->
-			require('../')
-			require('./samples/all.coffee')
-		
+	test "basic register", ()->		
 		Promise.resolve()
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 
 
 	test "index.coffee require", ()->
-		src = ()->
-			require('../')
-			require('./samples/index')
-
 		Promise.resolve()
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/index')
 			.then (result)-> expect(result).to.equal('theIndex')
 
 
 	test "dir require", ()->
-		src = ()->
-			require('../')
-			require('./samples')
-
 		Promise.resolve()
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples')
 			.then (result)-> expect(result).to.equal('theIndex')
 
 
 	test "cached result", ()->
-		src = ()->
-			require('../')
-			require('./samples/all.coffee')
-
 		Promise.resolve()
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list).to.eql []
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.tap (list)-> expect(list.length).to.equal 4
@@ -96,76 +86,82 @@ suite "coffee-register", ()->
 				expect(list).to.contain "#{hashC}.js"
 				expect(list).to.contain "#{hashAll}.js"
 
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.tap (list)-> expect(list.length).to.equal 4
 			.then (list)-> fs.writeAsync temp('.cache',"#{hashB}.js"), fs.read(temp('.cache',"#{hashB}.js")).replace("'sample", "'SAMPLE")
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-SAMPLEB-sampleC')
 
 
 	test "cached result deletion", ()->
-		src = ()->
-			require('../')
-			require('./samples/all.coffee')
-
 		Promise.resolve()
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list).to.eql []
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.tap (list)-> expect(list.length).to.equal 4
 			.then (list)-> fs.removeAsync temp('.cache',list[1])
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list.length).to.equal 3
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list.length).to.equal 4
 
 
 	test "cached result update/change", ()->
-		src = ()->
-			require('../')
-			require('./samples/all.coffee')
-
 		origContents = null
 		Promise.resolve()
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list).to.eql []
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list.length).to.equal 4
 			.then ()-> fs.read sample('all.coffee')
 			.tap (contents)-> origContents = contents
 			.then (contents)-> fs.write sample('all.coffee'), contents+' '
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list.length).to.equal 5
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/all.coffee')
 			.then (result)-> expect(result).to.equal('sampleA-sampleB-sampleC')
 			.then ()-> listDir temp('.cache')
 			.then (list)-> expect(list.length).to.equal 5
 			.finally ()-> fs.write sample('all.coffee'), origContents
 
 
-	test "es2015", ()->
-		src = ()->
-			require('../')
-			require('./samples/es2015.coffee')
-		
+	test "es2015", ()->		
 		Promise.resolve()
-			.then ()-> runClean(src)
+			.then ()-> loadCleanly('./samples/es2015.coffee')
 			.tap (result)-> expect(typeof result).to.equal 'function'
 			.then (result)-> result('daniel')
 			.then (result)-> expect(result).to.eql
 				name: 'daniel'
 				job: 'developer'
 				status: 'active'
+
+	test "require.extensions locking", ()->
+		deRegister()
+		require('../')(null, lock:false)
+		expect(require('./samples')).to.equal 'theIndex'
+
+		deRegisterSamples()
+		require.extensions['.coffee'] = (module, filename)-> module._compile('module.exports = "overwrite"', filename)
+		expect(require('./samples')).to.equal 'overwrite'
+
+		
+		deRegister()
+		require('../')(null, lock:true)
+		expect(require('./samples')).to.equal 'theIndex'
+		
+		deRegisterSamples()
+		require.extensions['.coffee'] = (module, filename)-> module._compile('module.exports = "overwrite"', filename)
+		expect(require('./samples')).to.equal 'theIndex'
 
 
 

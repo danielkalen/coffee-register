@@ -8,10 +8,11 @@ serveCached = not COFFEE_NO_CACHE
 ## ==========================================================================
 ## require.extensions patch
 ## ========================================================================== 
-register = (extensions)->
+register = (extensions=[], options)->
 	coffeescript = require 'coffeescript'
 	md5 = require 'md5'
 	
+	options = getOptions(options)
 	targetExtensions = [].concat(extensions, '.coffee')
 	fs.dir(COFFEE_CACHE_DIR)
 	cachedFiles = fs.list(COFFEE_CACHE_DIR).filter (file)-> file.slice(-3) is '.js'
@@ -32,11 +33,17 @@ register = (extensions)->
 
 
 	for extension in targetExtensions when extension
-		require.extensions[extension] = loadFile
+		Object.defineProperty require.extensions, extension,
+			writable: not options.lock
+			configurable: true
+			enumerable: true
+			value: loadFile
 
 	return register
 
-
+getOptions = (options={})->
+	options.lock ?= false
+	return options
 
 
 ## ==========================================================================
